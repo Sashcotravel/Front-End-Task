@@ -1,6 +1,9 @@
 import React, {Dispatch, SetStateAction, useRef, useState} from 'react';
 import s from './MainPage.module.css'
 import navigateSVG from "../assets/navigate.png";
+import deleteSVG from "../assets/close.svg";
+import plusSVG from "../assets/plus.png";
+// import penSVG from "../assets/pen.png";
 
 interface IObject {
     x: number;
@@ -24,7 +27,8 @@ interface ObjectProps {
     objects: IObject2[]; // Змінено тип на IObject2
     // setObjects: (objects: IObject2[]) => void;
     setObjects: Dispatch<SetStateAction<IObject[]>>;
-    setChildrens: (objects: IObject2[]) => void;
+    // setChildrens: (objects: IObject2[]) => void;
+    setChildrens: Dispatch<SetStateAction<IObject2[]>>;
     childrens: IObject2[];
 }
 
@@ -84,7 +88,7 @@ const Line: React.FC<ILine> = ({children, childIndex}) => {
     // return <div style={lineStyle}></div>;
 };
 
-const ObjectComponent: React.FC<ObjectProps> = ({x, index, objects, setObjects, childrens, setChildrens}) => {
+const ObjectComponent: React.FC<ObjectProps> = ({x, index, setObjects, childrens, setChildrens}) => {
 
     const [children, setChildren] = useState<IObject2[]>([]);
     const [name, setName] = useState('');
@@ -105,7 +109,6 @@ const ObjectComponent: React.FC<ObjectProps> = ({x, index, objects, setObjects, 
     };
 
     if(x){}
-    if(objects){}
 
 
     return (<>
@@ -113,8 +116,12 @@ const ObjectComponent: React.FC<ObjectProps> = ({x, index, objects, setObjects, 
                 <input type="text" placeholder='categori name' value={name} className={s.inputObject}
                        onChange={(e) => setName(e.target.value)} />
                 <div className={s.divObjectBut}>
-                    <p className={s.butAddAndMines} onClick={removeObject}>-</p>
-                    <p className={s.butAddAndMines} onClick={addChildObject}>+</p>
+                    <div className={s.butAddAndMines} onClick={addChildObject}>
+                        <img src={plusSVG} alt="plus" />
+                    </div>
+                    <div className={s.butAddAndMines2} onClick={removeObject}>
+                        <img src={deleteSVG} alt="delete" style={{width: '30px', height: '20px'}} />
+                    </div>
                 </div>
                 <div style={{display: 'flex', justifyContent: 'space-evenly', width: '100%'}}>
                     {children.map((child, childIndex) => (
@@ -158,6 +165,10 @@ const MainPage: React.FC = () => {
 
     const [objects, setObjects] = useState<IObject[]>([
         { x: 0, y: 0, scale: 1 },
+    ]);
+
+    const [objects2, setObjects2] = useState<IObject2[]>([
+        { x: 0, objects: [] },
     ]);
 
     const handleObjectMove = (index: number, deltaX: number, deltaY: number) => {
@@ -302,7 +313,9 @@ const MainPage: React.FC = () => {
                                 key={index}
                                 x={obj.x}
                                 index={index}
-                                objects={objects}
+                                objects={objects2}
+                                childrens={objects2}
+                                setChildrens={setObjects2}
                                 setObjects={setObjects}
                             />
                         )
