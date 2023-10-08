@@ -25,11 +25,10 @@ interface ObjectProps {
     x: number;
     index: number;
     objects: IObject2[]; // Змінено тип на IObject2
-    // setObjects: (objects: IObject2[]) => void;
     setObjects: Dispatch<SetStateAction<IObject[]>>;
-    // setChildrens: (objects: IObject2[]) => void;
     setChildrens: Dispatch<SetStateAction<IObject2[]>>;
     childrens: IObject2[];
+    level: number
 }
 
 const Line: React.FC<ILine> = ({children, childIndex}) => {
@@ -44,35 +43,38 @@ const Line: React.FC<ILine> = ({children, childIndex}) => {
             position: 'relative',
             margin: '10px 0 0',
             height: '20px',
-            width: '50%',
-            borderRight: '1px solid rgb(168, 168, 177)'
+            width: '100%',
+            borderTop: '1px solid rgb(168, 168, 177)',
         };
-        return <div style={lineStyle}></div>;
+        return <div style={{display: 'flex', justifyContent: 'center', width: '100%', flexDirection: 'column'}}>
+            {childIndex !== 0 && <div style={lineStyle}></div>}
+            {childIndex !== 0 && <div className={s.addLine1}></div>}
+            {childIndex === 0 && <div className={s.addLine2}></div>}
+        </div>;
     }
     else if(newChildIndex <= childIndex){
         lineStyle = {
-            position: 'relative',
-            // margin: '10px 0 0px -100px',
-            margin: '10px 0 0 -200px',
+             margin: '10px 0 0 0',
             height: '20px',
-            width: '140%',
+            width: '50%',
             borderTop: '1px solid rgb(168, 168, 177)',
             borderRight: '1px solid rgb(168, 168, 177)'
         };
-        return <div style={lineStyle}></div>;
+        return <div style={{display: 'flex', justifyContent: 'flex-start', width: '100%'}}>
+            <div style={lineStyle}></div>
+        </div>;
     }
     else if(newChildIndex > childIndex){
         lineStyle = {
-            position: 'relative',
-            // margin: '10px -1px 0px 100px',
-            margin: '10px 0 0 120px',
+            margin: '10px 0 0 0',
             height: '20px',
-            // width: '100%',
-            width: '147%',
+            width: '50%',
             borderTop: '1px solid rgb(168, 168, 177)',
             borderLeft: '1px solid rgb(168, 168, 177)'
         };
-        return <div style={lineStyle}></div>;
+        return <div style={{display: 'flex', justifyContent: 'flex-end', width: '100%'}}>
+            <div style={lineStyle}></div>
+        </div>;
     }
     else {
         lineStyle = {
@@ -88,7 +90,12 @@ const Line: React.FC<ILine> = ({children, childIndex}) => {
     // return <div style={lineStyle}></div>;
 };
 
-const ObjectComponent: React.FC<ObjectProps> = ({x, index, setObjects, childrens, setChildrens}) => {
+const ObjectComponent: React.FC<ObjectProps> = ({x,
+                                                    index,
+                                                    setObjects,
+                                                    childrens,
+                                                    setChildrens,
+                                                    level}) => {
 
     const [children, setChildren] = useState<IObject2[]>([]);
     const [name, setName] = useState('');
@@ -101,19 +108,24 @@ const ObjectComponent: React.FC<ObjectProps> = ({x, index, setObjects, childrens
     };
 
     const removeObject = () => {
-        // const updatedParentObjects = [...objects];
+        removeAllChildren()
         const updatedParentObjects = [...childrens];
         updatedParentObjects.splice(index, 1);
-        // setObjects(updatedParentObjects);
         setChildrens(updatedParentObjects);
+    };
+
+    const removeAllChildren = () => {
+        setChildren([]);
     };
 
     if(x){}
 
+    const arrColor = ['violet', 'yellow', 'green', 'gray', 'yellowgreen', 'tomato'];
+    const colorIndex = level % arrColor.length;
 
     return (<>
             <div className={s.object}>
-                <input type="text" placeholder='categori name' value={name} className={s.inputObject}
+                <input type="text" placeholder='categori name' value={name} className={s.inputObject} style={{backgroundColor: arrColor[colorIndex] || 'white'}}
                        onChange={(e) => setName(e.target.value)} />
                 <div className={s.divObjectBut}>
                     <div className={s.butAddAndMines} onClick={addChildObject}>
@@ -124,7 +136,8 @@ const ObjectComponent: React.FC<ObjectProps> = ({x, index, setObjects, childrens
                     </div>
                 </div>
                 <div style={{display: 'flex', justifyContent: 'space-evenly', width: '100%'}}>
-                    {children.map((child, childIndex) => (
+                    {children.map((child, childIndex) => {
+                        return(
                         <div key={childIndex} className="childObject">
                             <Line children={children} childIndex={childIndex} />
                             <ObjectComponent
@@ -132,18 +145,13 @@ const ObjectComponent: React.FC<ObjectProps> = ({x, index, setObjects, childrens
                                 x={child.x}
                                 index={childIndex}
                                 objects={children}
-                                // objects={child.objects || []}
-                                // setObjects={(newObjects) => {
-                                //     const updatedChildren = [...children];
-                                //     updatedChildren[childIndex] = { ...child, x: newObjects[0]?.x };
-                                //     setChildren(updatedChildren);
-                                // }}
                                 setObjects={setObjects}
                                 childrens={children}
                                 setChildrens={setChildren}
+                                level={level + 1}
                             />
                         </div>
-                    ))}
+                    )})}
                 </div>
             </div>
     </>
@@ -229,18 +237,12 @@ const MainPage: React.FC = () => {
     };
 
     const centerScale = () => {
-        if (containerRef.current) {
-            const centerX = containerRef.current.clientWidth / 2;
-            const centerY = containerRef.current.clientHeight / 2;
-
-            // Розрахунок зсуву для центрування
-            const deltaX = centerX * (1 - scale);
-            const deltaY = centerY * (1 - scale);
-
-            setScale(1);
-            containerRef.current.style.transform = `scale(${scale}) translate(${deltaX}px, ${deltaY}px)`;
-            containerRef.current.style.transformOrigin = 'center center';
+        const element = document.getElementById('giveCenter');
+        if (element) {
+            element.style.transform = `translate(0px, 55px) scale(${scale})`;
         }
+        objects[0].x = 0
+        objects[0].y = 55
     };
 
     const objectStyle: React.CSSProperties = {
@@ -278,13 +280,14 @@ const MainPage: React.FC = () => {
     };
 
 
+
     return (
         <div className={s.mainDiv}>
 
             <div className={s.headerDiv}>
-                <div style={{display: 'flex'}}>
-                    <p>Services</p>
-                    <p>0</p>
+                <div style={{display: 'flex', marginLeft: '30px', fontFamily: 'sans-serif'}}>
+                    <p style={{fontSize: '35px'}}>Services</p>
+                    <p className={s.whiteCircle}>0</p>
                 </div>
                 <div className={s.divNavigate}>
                     <button onClick={resetScale}>LIST VIEW</button>
@@ -292,15 +295,15 @@ const MainPage: React.FC = () => {
                         <img src={navigateSVG} alt='navigator' />
                     </div>
                     <div className={s.divButton}>
-                        <div onClick={() => handleScaleChange2(scale - 0.1, '-')} className={s.mathBut}>-</div>
+                        <div onClick={() => handleScaleChange2(scale - 0.05, '-')} className={s.mathBut}>-</div>
                         <div className={s.divScale}>{scale2}%</div>
-                        <div onClick={() => handleScaleChange2(scale + 0.1, '+')} className={s.mathBut}>+</div>
+                        <div onClick={() => handleScaleChange2(scale + 0.05, '+')} className={s.mathBut}>+</div>
                     </div>
                 </div>
             </div>
 
             <div style={containerStyle}>
-                <div ref={containerRef}
+                <div ref={containerRef} id='giveCenter'
                      style={objectStyle}
                      onMouseDown={handleDragStart}
                      onMouseUp={handleDragStop}
@@ -317,6 +320,7 @@ const MainPage: React.FC = () => {
                                 childrens={objects2}
                                 setChildrens={setObjects2}
                                 setObjects={setObjects}
+                                level={0}
                             />
                         )
                     })}

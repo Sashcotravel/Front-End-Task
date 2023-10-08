@@ -11,10 +11,26 @@
     height: auto;
     padding: 10px;
     border-radius: 5px;
-    margin-bottom: 20px;
+    margin: 0 70px 20px 75px;
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.addLine1{
+    position: relative;
+    margin: -20px 0px 0px;
+    height: 20px;
+    width: 50%;
+    border-right: 1px solid rgb(168, 168, 177);
+}
+
+.addLine2{
+    position: relative;
+    margin: 10px 0px 0px;
+    height: 20px;
+    width: 50%;
+    border-right: 1px solid rgb(168, 168, 177);
 }
 
 .divObjectBut{
@@ -57,6 +73,8 @@
     padding: 5px;
     font-size: 20px;
     text-align: center;
+    border: none;
+    background-color: #a5a5a5;
 }
 
 .headerDiv{
@@ -67,6 +85,16 @@
     align-items: center;
     justify-content: space-between;
     user-select: none;
+}
+
+.whiteCircle{
+    width: 30px;
+    height: 30px;
+    background-color: aliceblue;
+    text-align: center;
+    border-radius: 40%;
+    margin: 12px 0 0 7px;
+    padding: 4px 0 0 0;
 }
 
 .divNavigate{
